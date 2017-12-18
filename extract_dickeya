@@ -1,0 +1,1 @@
+esearch -db assembly -query 'txid204037[Organism:exp] AND ((latest[filter] OR "latest genbank"[filter]) AND all[filter] NOT anomalous[filter])' | efetch -format docsum | xtract -pattern DocumentSummary -block FtpPath
