@@ -1,1 +1,21 @@
-esearch -db assembly -query 'txid204037[Organism:exp] AND ((latest[filter] OR "latest genbank"[filter]) AND all[filter] NOT anomalous[filter])' | efetch -format docsum | xtract -pattern DocumentSummary -block FtpPath -element FtpPath
+# extract genome data from ftp directories
+# 1. Find Dickeya assemblies in RefSeq save it to 'Dickeya_RefSeq_ftp'
+esearch -db assembly -query '("Dickeya"[Organism] AND (bacteria[filter] AND "latest refseq"[filter] AND all[filter] NOT anomalous[filter])' | efetch -format docsum | xtract -pattern DocumentSummary -block FtpPath -match "@type:RefSeq" -element FtpPath | sed 's/$/\//' > Dickeya_RefSeq_ftp
+
+# 2. Extract directory names
+awk '{FS="/"};!/^#/;{print $10} ' Dickeya_GenBank_ftp 
+
+# 3. Add directory names _genomic.fna.gz to the ftp address (add as columns then remove \t's)
+
+# 4. uncompress content and save it to a directory with strain names
+
+
+# awk 'BEGIN{FS=OFS="/";filesuffix="genomic.fna.gz"}{ftpdir=$0;asm=$6;file=asm"_"filesuffix;print ftpdir""file}'  Dickeya_GenBank_ftp > Dickeya_GenBank_ftp
+
+# Find Pectobacterium assemblies in GenBank
+
+#examples
+curl 'Ōp://Ōp.ncbi.nlm.nih.gov/genomes/refseq/fungi/assembly_summary.txt' | \
+awk '{FS="\t"}  !/^#/ {print $20} ' | \
+sed ‐r 's|(Ōp://Ōp.ncbi.nlm.nih.gov/genomes/all/)(GCF_.+)|\1\2/\2_genomic.fna.gz|' > genomic_file
+
