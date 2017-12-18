@@ -1,0 +1,110 @@
+NCBI Minute: Downloading Genome Data from the NCBI FTP Site 08/31/2016
+
+The Entrez Assembly Resource
+=============================
+Search in www.ncbi.nlm.nih.gov/assembly
+
+fungi[organism] AND "complete genome"[filter] AND "latest refseq"[Filter] 
+
+Retrieve record for Saccharomyces cerevisiase (R64).
+
+Follow link to RefSeq FTP directory
+ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF_000146045.2_R64
+
+You could easily download the individual files the web browser or the entire directory using an ftp client. There are sequence files including the genomic sequence plus RNA and coding regions. The README file has details on the contents of each file type. Notice that there is also a separate directory for the assembly structure that contains individual assemblies for each chromosome.
+
+Using rsync to download a directory and files from genomes/all
+==============================================================
+Let's switch over to the commandline and use rsync to mirror the contents of the GCF_000146045.2_R64 directory. The rsync program is available for UNIX-like systems and is generally used to synchronize and backup files and directories. To use rsync with the ncbi rsync server simply replace ftp with rsync in the URL to the the ftp directory. The following command accesses the directory and its contents. In the first form where I have not specified a local directory I just get the contents listed. 
+
+rsync --copy-links --times --verbose rsync://ftp.ncbi.nlm.nih.gov/genomes/all/GCF_000146045.2_R64/
+
+The option copy-links replaces links with the actual files. The times option keeps the server's timestamps on the files. 
+
+The next form will download the entire directory to the local Yeast directory. The --recursive option downloads all files and subdirectories. In this case that includes the assembly_structure directory.
+
+rsync --copy-links --times --verbose --recursive rsync://ftp.ncbi.nlm.nih.gov/genomes/all/GCF_000146045.2_R64/ ./Yeast
+
+We could exclude the somewhat redundant GCF_000146045.2_R64_assembly_structure directory by adding  --exclude "*_assembly_structure/" to the command.
+
+rsync --copy-links --times --verbose --recursive --exclude "*_assembly_structure" rsync://ftp.ncbi.nlm.nih.gov/genomes/all/GCF_000146045.2_R64/ ./Yeast
+
+You can use various filters, include, and exclude  with rsync to get only the files you want. For example the following command will download only the FASTA nucleotide files from the directory.
+
+rsync --copy-links --times --verbose --recursive --exclude "*_assembly_structure" --include "*.fna.gz" --filter "-! */" rsync://ftp.ncbi.nlm.nih.gov/genomes/all/GCF_000146045.2_R64/ ./Yeast
+
+Using rsync to download a directory and files from genomes/refseq or genomes/genbank
+====================================================================================
+Navigate to the genomes/refseq directory and link to the fungi directory. 
+
+ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/fungi/
+
+We could mirror the entire directory with rsync. It may be more useful to get a particular kind of assembly and a particular kind of file. One useful kind of assembly is the representative genome. We could also get only the proteins for these reference assemblies. Again we can use the various exclude and include filters to get only the files we want
+
+rsync --copy-links --recursive --times --verbose --exclude "*_assembly_structure" --exclude "*/all_assembly_versions/" --exclude "*/latest_assembly_versions/" --include "*_protein.faa.gz" --filter "-! */" --prune-empty-dirs rsync://ftp.ncbi.nlm.nih.gov/genomes/refseq/fungi/ ./Fungal_Proteins
+
+
+Using wget/curl to download specific directories or files
+==========================================================
+We can download any set of files or directory contents easily using the wget utility that is available on most Linux/Unix systems. First we need to get the paths to the files. We can easily get the paths using the EDirect command line programs or from the master or organism-specific assembly_summary.txt files from the genomes FTP area. The Genomes Download FAQ (http://www.ncbi.nlm.nih.gov/genome/doc/ftpfaq/#allcomplete) provides detailed instructions and some awk one-liners for parsing the FTP URLs out of the genomes summary. We'll use the EDirect programs to get the URLs.  We can easily replicate our Entrez Assembly search using the commandline program ESearch.
+
+esearch -db assembly -query 'fungi[organism] AND "complete genome"[filter] AND "latest refseq"[Filter]"'
+
+This finds the six complete genomes we found in the web assembly example. We can use the xtract program to get the paths from the DocumentSummary XML.  The FTP paths are in the <FtpSites> block.
+
+<FtpSites>
+	<FtpPath type="GenBank">ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA_000026945.1_ASM2694v1</FtpPath>
+	<FtpPath type="RefSeq">ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF_000026945.1_ASM2694v1</FtpPath>
+</FtpSites>
+
+The following EDirect commands will extract the FTP paths to the complete genomes.
+
+esearch -db assembly -query 'fungi[organism] AND "complete genome"[filter] AND "latest refseq"[Filter]"' | efetch -format docsum | xtract -pattern DocumentSummary -block FtpPath -match "@type:RefSeq" -element FtpPath | sed 's/$/\//' > ftpdirpaths
+
+The sed command at the end adds a "/" to make these directories. You can pass these URLs directly to wget.
+
+wget -r --no-parent --no-host-directories --cut-dirs=2  --level=1 --input-file=ftpdirpaths --directory-prefix=Complete_Fungal
+
+The --level=1 option makes it so that wget doesn't descend into the assembly_structure directory and levels below. Don't use the --level option if you need that information.
+
+
+You could use an awk one-liner to get only a specific file for each one by appending th standard way each file is named, for example Accession_AssemblyName.genomic.fna.gz, to the directory path. 
+ 
+ awk 'BEGIN{FS=OFS="/";filesuffix="genomic.fna.gz"}{ftpdir=$0;asm=$6;file=asm"_"filesuffix;print ftpdir""file}' ftpdirpaths > ftpfilepaths
+
+The following wget command will download only the files
+
+wget -r --no-parent --no-host-directories --cut-dirs=3 --level=1 --input-file=ftpfilepaths --directory-prefix=Genomic_Only
+
+There is also a simple Perl script (rsync_files.pl) in this directory (code shown below) that uses calls to rsync to accomplish the same download as the above wget command. The script will take a file of FTP file paths. For example
+
+perl rsync_files.pl ftpfilepaths
+
+rsyn_files.pl code below
+==========================
+
+use strict;
+
+my $base = 'rsync --copy-links --times --verbose rsync://';
+my ($url, $command);
+
+while(<>) {
+   chomp;
+   if (/^(ftp\..*)/) {
+      $url = $1;
+   }
+   elsif (/:\/\/(ftp.*)/) {
+      $url = $1;
+   }
+   else {
+      print "Invalid URL: $_\n";
+      next;
+   }
+   $command = $base . $url . ' .';
+   print "$command\n";
+   print "Downloading $url\n";
+   system($command); 
+}
+
+ 
+
