@@ -3,11 +3,19 @@
 esearch -db assembly -query '("Dickeya"[Organism] AND (bacteria[filter] AND "latest refseq"[filter] AND all[filter] NOT anomalous[filter])' | efetch -format docsum | xtract -pattern DocumentSummary -block FtpPath -match "@type:RefSeq" -element FtpPath | sed 's/$/\//' > Dickeya_RefSeq_ftp
 
 # 2. Extract directory names
-awk '{FS="/"};!/^#/;{print $10} ' Dickeya_GenBank_ftp 
+#awk '{FS="/"};{print $10}' Dickeya_RefSeq_ftp | paste Dickeya_RefSeq_ftp | tr -d '\t' > Dickeya_RefSeq_ftp
+cat Dickeya_RefSeq_ftp | tr '/' '\t' | cut -f 10 > aa
+paste Dickeya_RefSeq_ftp aa | tr -d '\t'| sed 's/$/_genomic.fna.gz/' > Dickeya_RefSeq_ftp_fna
+rm aa
+rm Dickeya_RefSeq_ftp_fna
 
 # 3. Add directory names _genomic.fna.gz to the ftp address (add as columns then remove \t's)
+sed 's/$/_genomic.fna.gz/' Dickeya_GeneBank_ftp
 
-# 4. uncompress content and save it to a directory with strain names
+# 4. Download with wget
+
+
+# 5. uncompress content and save it to a directory with strain names
 
 
 # awk 'BEGIN{FS=OFS="/";filesuffix="genomic.fna.gz"}{ftpdir=$0;asm=$6;file=asm"_"filesuffix;print ftpdir""file}'  Dickeya_GenBank_ftp > Dickeya_GenBank_ftp
