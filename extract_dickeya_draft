@@ -18,7 +18,8 @@ sed 's/$/_genomic.fna.gz/' Dickeya_GeneBank_ftp
 wget -r -np -nH --cut-dir=7 --level=1 --input-file=Dickeya_RefSeq_ftp_fna --directory-prefix=Dickeya
 
 # 5. uncompress content and save it to a directory with strain names
-
+gunzip *.gz
+filename = 
 
 # awk 'BEGIN{FS=OFS="/";filesuffix="genomic.fna.gz"}{ftpdir=$0;asm=$6;file=asm"_"filesuffix;print ftpdir""file}'  Dickeya_GenBank_ftp > Dickeya_GenBank_ftp
 
@@ -29,6 +30,10 @@ curl 'Ōp://Ōp.ncbi.nlm.nih.gov/genomes/refseq/fungi/assembly_summary.txt' | \
 awk '{FS="\t"}  !/^#/ {print $20} ' | \
 sed ‐r 's|(Ōp://Ōp.ncbi.nlm.nih.gov/genomes/all/)(GCF_.+)|\1\2/\2_genomic.fna.gz|' > genomic_file
 wget -r --no-parent --no-host-directories --cut-dirs=2  --level=1 --input-file=ftpdirpaths --directory-prefix=Complete_Fungal
+
+# Extract organism names
+esearch -db assembly -query '("Dickeya"[Organism] AND (bacteria[filter] AND "latest refseq"[filter] AND all[filter] NOT anomalous[filter])' | efetch -format docsum | xtract -pattern DocumentSummary -element Organism SpeciesName Sub_value > Dickeya_Species_strain
+
 
 ###################################################
 # Extract Dickeya genome fasta
