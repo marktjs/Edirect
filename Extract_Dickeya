@@ -1,0 +1,11 @@
+#!/bin/bash
+# Extract Dickeya genome fasta
+esearch -db assembly -query '("Dickeya"[Organism] AND (bacteria[filter] AND "latest refseq"[filter] AND all[filter] NOT anomalous[filter])' | efetch -format docsum | xtract -pattern DocumentSummary -block FtpPath -match "@type:RefSeq" -element FtpPath | sed 's/$/\//' > Dickeya_RefSeq_ftp
+
+cat Dickeya_RefSeq_ftp | tr '/' '\t' | cut -f 10 > aa
+
+paste Dickeya_RefSeq_ftp aa | tr -d '\t'| sed 's/$/_genomic.fna.gz/' > Dickeya_RefSeq_ftp_fna
+
+wget -r -np -nH --cut-dir=7 --level=1 --input-file=Dickeya_RefSeq_ftp_fna --directory-prefix=Dickeya
+
+rm aa
