@@ -1,6 +1,6 @@
 # Learn_python
 
-## 1. **List**
+## 1. **List** (with ```[]```)
 
 ```
 list_name = [item_1, item_2]
@@ -122,7 +122,7 @@ returns
 ```py
  ["john","paul","george","ringo"]
 ```
-## 2. **Dictionary** with ***key : value*** pairs using ```{}```
+## 2. **Dictionary** with ***key : value*** pairs (with ```{}```)
 ### 2.1 Find values with keys
 ```py
 d = {'key1' : 1, 'key2' : 2, 'key3' : 3}
