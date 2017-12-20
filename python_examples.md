@@ -1,5 +1,6 @@
 # Examples from Codecademy
-```
+## List
+```python
 zoo_animals = ["pangolin", "cassowary", "sloth", 'panda'];
 # One animal is missing!
 
