@@ -26,6 +26,12 @@ print "Adding the numbers at indices 1 and 3..."
 # Your code here!
 print numbers[1] + numbers[3]
 ```
+Generate a list with ```range()```
+```py
+range(6) # => [0, 1, 2, 3, 4, 5]
+range(1, 6) # => [1, 2, 3, 4, 5]
+range(1, 6, 3) # => [1, 4]
+```
 ### 1.3 Change the elements in a list
 ```py
 zoo_animals = ["pangolin", "cassowary", "sloth", "tiger"]
