@@ -63,7 +63,9 @@ list_length = len(suitcase) # Set this to the length of suitcase
 print "There are %d items in the suitcase." % (list_length)
 print suitcase
 ```
-A **place holder** in the text is used in this example. ```'%d' % (variable)```
+A **placeholder** in the text is used in this example. ```'%d' % (variable)```
+```%d``` is a placeholder for a number
+```%s``` is a placeholder for a string
 
 ### 1.5 List and string slicing with ```[]```
 List slicing
