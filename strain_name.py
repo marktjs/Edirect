@@ -7,6 +7,8 @@ with open("Dickeya_Species_strain", "r") as inf:
             wbuffer+= inline[0]+'\n'
         else:
             wbuffer+= inline[0]+'_'+inline[1]+'\n'
+inf.close() # close handler to free up system resource
 
 with open("Dickeya_Species_Strain_clean","w") as outf:
     outf.write(wbuffer)
+outf.close()
