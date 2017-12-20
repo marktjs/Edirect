@@ -1,10 +1,10 @@
-#!/bin/python
+#!/usr/bin/python
 # This py delete extra strain names from Edirect Species Sub_value (strain) extraction
-
+def 
 wbuffer=""
 with open("Dickeya_Species_strain", "r") as inf:
     for line in inf:
-        line = line.strip()
+        line = line.strip().replace(' ', '_')
         inline = line.split('\t')
         if inline[1] in inline[0]:
             wbuffer+= inline[0]+'\n'
