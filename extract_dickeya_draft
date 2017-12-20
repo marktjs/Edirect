@@ -19,7 +19,7 @@ wget -r -np -nH --cut-dir=7 --level=1 --input-file=Dickeya_RefSeq_ftp_fna --dire
 
 # 5. uncompress content and save it to a directory with strain names
 gunzip *.gz
-filename = 
+
 
 # awk 'BEGIN{FS=OFS="/";filesuffix="genomic.fna.gz"}{ftpdir=$0;asm=$6;file=asm"_"filesuffix;print ftpdir""file}'  Dickeya_GenBank_ftp > Dickeya_GenBank_ftp
 
@@ -31,10 +31,50 @@ awk '{FS="\t"}  !/^#/ {print $20} ' | \
 sed ‐r 's|(Ōp://Ōp.ncbi.nlm.nih.gov/genomes/all/)(GCF_.+)|\1\2/\2_genomic.fna.gz|' > genomic_file
 wget -r --no-parent --no-host-directories --cut-dirs=2  --level=1 --input-file=ftpdirpaths --directory-prefix=Complete_Fungal
 
-# Extract organism names
-esearch -db assembly -query '("Dickeya"[Organism] AND (bacteria[filter] AND "latest refseq"[filter] AND all[filter] NOT anomalous[filter])' | efetch -format docsum | xtract -pattern DocumentSummary -element Organism SpeciesName Sub_value > Dickeya_Species_strain
+# Extract organism names including species names and strain names
+esearch -db assembly -query '("Dickeya"[Organism] AND (bacteria[filter] AND "latest refseq"[filter] AND all[filter] NOT anomalous[filter])' | efetch -format docsum | xtract -pattern DocumentSummary -element SpeciesName Sub_value > Dickeya_Species_strain
+
+# Sometimes the species names include strain names. Therefore we need to write a program to compare and finalize the species names
+#use python
+#example of python load a file
+list=open('list')
+
+list=list.read()
+
+list=list.split('\n')
+
+list.remove('')
 
 
+
+wbuffer=""
+
+with open("bb", "r") as inf:
+
+    for line in inf:
+
+        if any (id in line for id in list):
+
+            wbuffer+=line
+
+            
+
+with open("aa","w") as outf:
+
+    outf.write(wbuffer)
+#____________________________________________
+wbuffer=""
+with open("Dickeya_Species_strain", "r") as inf:
+    for line in inf:
+        line = line.strip()
+        inline = line.split('\t')
+        if inline[1] in inline[0]:
+            wbuffer+= inline[0]+'\n'
+        else:
+            wbuffer+= inline[0]+' '+inline[1]+'\n'
+
+with open("Dickeya_Species_Strain_clean","w") as outf:
+    outf.write(wbuffer)
 ###################################################
 # Extract Dickeya genome fasta
 esearch -db assembly -query '("Dickeya"[Organism] AND (bacteria[filter] AND "latest refseq"[filter] AND all[filter] NOT anomalous[filter])' | efetch -format docsum | xtract -pattern DocumentSummary -block FtpPath -match "@type:RefSeq" -element FtpPath | sed 's/$/\//' > Dickeya_RefSeq_ftp
@@ -47,3 +87,6 @@ wget -r -np -nH --cut-dir=7 --level=1 --input-file=Dickeya_RefSeq_ftp_fna --dire
 
 rm aa
 
+######################################################
+#Species name and strain
+for line in Dickeya_Species_strain
