@@ -40,15 +40,14 @@ zoo_animals[2] = "hyena"
 zoo_animals[3] = "rabit"
 
 ```
-### 1.4 Add element in the end```list.append()``` & List length ```len()```
-Model
+### 1.4 Add element in the end```list.append()``` & List length ```len()```. Remove element by index ```.pop(index)```, Remove element by matching ```.remove(item)```
+```list.append()```
 ```py
 letters = ['a', 'b', 'c']
 letters.append('d')
 print len(letters)
 print letters
 ```
-Example
 ```py
 suitcase = []
 suitcase.append("sunglasses")
@@ -66,7 +65,21 @@ print suitcase
 A **placeholder** in the text is used in this example. ```'%d' % (variable)```
 ```%d``` is a placeholder for a number
 ```%s``` is a placeholder for a string
-
+```list.pop(index)```
+```py
+n = [1, 3, 5]
+n.pop(1)
+# Returns 3 (the item at index 1)
+print n
+# prints [1, 5]
+```
+```list.remove(item)```
+```py
+n.remove(1)
+# Removes 1 from the list,
+# NOT the item at index 1
+print n
+```
 ### 1.5 List and string slicing with ```[]```
 List slicing
 ```py
