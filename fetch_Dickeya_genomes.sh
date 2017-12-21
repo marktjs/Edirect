@@ -9,8 +9,8 @@ mkdir ./old_list
 mv Dickeya_GenBank ./old_list # Save old GenBank list for comparison
 find . -maxdepth 1 -type f -exec rm -f {} + # remove old files in this directory but not the directories and the files in those directories
 
-#1.1 Download Assembly GenBank ftp path, species names and strain names
-esearch -db assembly -query '("Dickeya"[Organism] OR Dickeya[All Fields]) AND (latest[filter] AND all[filter] NOT anomalous[filter]' | efetch -format docsum | xtract -pattern DocumentSummary -element FtpPath_GenBank SpeciesName Sub_value Genbank > Dickeya_GenBank
+#1.1 Download Assembly GenBank ftp path, species names and strain names #txid for Dickeya is 204037
+esearch -db assembly -query 'txid204037[Organism:exp] AND (latest[filter] AND all[filter] NOT anomalous[filter]' | efetch -format docsum | xtract -pattern DocumentSummary -element FtpPath_GenBank SpeciesName Sub_value Genbank > Dickeya_GenBank
 # Edit file path for GCA_*fna.gz
 cut -f 1 Dickeya_GenBank | sed 's/$/\//' > Dickeya_GenBank_ftp # This is the ftppath for the folder containing all files each strain
 ## Save the species and strain name into a file
@@ -31,6 +31,7 @@ sed 's/$/.fna.gz/' Dickeya_strain_accession > ccc # add fna.gz to the strain nam
 cat Dickeya_GenBank_ftp | tr '/' '\t' | cut -f 10 > aa
 paste Dickeya_GenBank_ftp aa | tr -d '\t'| sed 's/$/_genomic.fna.gz/' > Dickeya_GenBank_ftp_fna # this is the file that contains ftppath for downloading fna data in GenBank
 # Download fna and decompress in Dickeya_genomes directory
+rm -rf ./Dickeya_genomes # delete old genome files
 mkdir ./Dickeya_genomes
 sed 's/^/wget -r -np -nH --cut-dir=7 --level=1  -O .\/Dickeya_genomes\//' ccc > bb
 paste bb Dickeya_GenBank_ftp_fna| tr '\t' ' ' | sh
