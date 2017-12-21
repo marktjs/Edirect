@@ -3,6 +3,9 @@
 # extract genome data from ftp directories
 # 1. Find Dickeya assemblies in RefSeq save it to 'Dickeya_RefSeq_ftp'
 esearch -db assembly -query '("Dickeya"[Organism] AND (bacteria[filter] AND "latest refseq"[filter] AND all[filter] NOT anomalous[filter])' | efetch -format docsum | xtract -pattern DocumentSummary -block FtpPath -match "@type:RefSeq" -element FtpPath | sed 's/$/\//' > Dickeya_RefSeq_ftp
+#1.1 Download Assembly GenBank ftp path, species names and strain names
+esearch -db assembly -query '(("Dickeya"[Organism] OR Dickeya[All Fields]) AND (latest[filter] AND all[filter] NOT anomalous[filter])' | efetch -format docsum | xtract -pattern DocumentSummary -element FtpPath_GenBank SpeciesName Sub_value Genbank > Dickeya_GenBank
+
 
 # 2. Extract directory names
 #awk '{FS="/"};{print $10}' Dickeya_RefSeq_ftp | paste Dickeya_RefSeq_ftp | tr -d '\t' > Dickeya_RefSeq_ftp
@@ -77,15 +80,17 @@ with open("Dickeya_Species_Strain_clean","w") as outf:
     outf.write(wbuffer)
 ###################################################
 # Extract Dickeya genome fasta
-esearch -db assembly -query '("Dickeya"[Organism] AND (bacteria[filter] AND "latest refseq"[filter] AND all[filter] NOT anomalous[filter])' | efetch -format docsum | xtract -pattern DocumentSummary -block FtpPath -match "@type:RefSeq" -element FtpPath | sed 's/$/\//' > Dickeya_RefSeq_ftp
-
-cat Dickeya_RefSeq_ftp | tr '/' '\t' | cut -f 10 > aa
-
-paste Dickeya_RefSeq_ftp aa | tr -d '\t'| sed 's/$/_genomic.fna.gz/' > Dickeya_RefSeq_ftp_fna
-
-wget -r -np -nH --cut-dir=7 --level=1 --input-file=Dickeya_RefSeq_ftp_fna --directory-prefix=Dickeya
-
-rm aa
+#1.1 Download Assembly GenBank ftp path, species names and strain names
+esearch -db assembly -query '(("Dickeya"[Organism] OR Dickeya[All Fields]) AND (latest[filter] AND all[filter] NOT anomalous[filter])' | efetch -format docsum | xtract -pattern DocumentSummary -element FtpPath_GenBank SpeciesName Sub_value Genbank > Dickeya_GenBank
+# Edit file path for GCA_*fna.gz
+cut -f 1 Dickeya_GenBank | sed 's/$/\//' > Dickeya_GenBank_ftp
+# Extract fna file path
+cat Dickeya_GenBank_ftp | tr '/' '\t' | cut -f 10 > aa
+paste Dickeya_GenBank_ftp aa | tr -d '\t'| sed 's/$/_genomic.fna.gz/' > Dickeya_GenBank_ftp_fna
+# Download fna
+wget -r -np -nH --cut-dir=7 --level=1 --input-file=Dickeya_RefSeq_ftp_fna --directory-prefix=Dickeya_genomes
+# Clean up 
+rm aa 
 
 ######################################################
 #Species name and strain
