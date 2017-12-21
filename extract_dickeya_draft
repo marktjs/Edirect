@@ -88,7 +88,7 @@ cut -f 1 Dickeya_GenBank | sed 's/$/\//' > Dickeya_GenBank_ftp
 cat Dickeya_GenBank_ftp | tr '/' '\t' | cut -f 10 > aa
 paste Dickeya_GenBank_ftp aa | tr -d '\t'| sed 's/$/_genomic.fna.gz/' > Dickeya_GenBank_ftp_fna
 # Download fna
-wget -r -np -nH --cut-dir=7 --level=1 --input-file=Dickeya_RefSeq_ftp_fna --directory-prefix=Dickeya_genomes
+wget -r -np -nH --cut-dir=7 --level=1 --input-file=Dickeya_GenBank_ftp_fna --directory-prefix=Dickeya_genomes
 # Clean up 
 rm aa 
 
