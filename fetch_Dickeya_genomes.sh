@@ -43,7 +43,7 @@ paste bb Dickeya_GenBank_ftp_fna| tr '\t' ' ' | sh
 cd ./Dickeya_genomes
 gunzip *.gz
 # example: ls *fna.gz|awk -F '.fna.gz' '{print"unzip " $0 " -d " $1}'|sh
-ls | awk -F '.fna' '{print "mkdir " $1 "; mv " $0 " " $1}' |sh # print mkdir $dir; mv $file $dir
+# ls | awk -F '.fna' '{print "mkdir " $1 "; mv " $0 " " $1}' |sh # print mkdir $dir; mv $file $dir (create a dir for each strain)
 cd ..
 # Clean up
 rm aa Dickeya_GenBank_ftp bb ccc
