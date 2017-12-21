@@ -1,4 +1,4 @@
-```bash
+```sh
 sudo -H pip install upgrade pip
 sudo -H pip3 install pyani
 ```
