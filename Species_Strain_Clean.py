@@ -1,6 +1,9 @@
 #!/usr/bin/python
 # This py delete extra strain names from Edirect Species Sub_value (strain) extraction
-def 
+# This is a draft to build a py progame to clean bacterial species and strain names, a complete version was renamed strain_name.py
+
+
+def
 wbuffer=""
 with open("Dickeya_Species_strain", "r") as inf:
     for line in inf:
